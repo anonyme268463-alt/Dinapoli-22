@@ -11,18 +11,17 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="product-images.css">
+  <link rel="stylesheet" href="polish.css">
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="#top" aria-label="Di Napoli, accueil">
-      <span class="brand-mark">DN</span><span>Di Napoli<small>Lamballe</small></span>
-    </a>
+    <a class="brand brand-logo" href="#top" aria-label="Di Napoli, accueil"><img src="assets/img/logo.svg" alt="Di Napoli Lamballe"></a>
     <nav aria-label="Navigation principale">
       <a href="#menu">La carte</a><a href="#restaurant">Le restaurant</a>
     </nav>
     <div class="header-actions">
       <a class="phone" href="tel:0296306964">02 96 30 69 64</a>
-      <button class="icon-button" aria-label="Mon compte">♙</button>
+      <button class="account-button" id="openAccount" aria-label="Ouvrir mon compte"><span class="account-icon">♙</span><span id="accountLabel">Se connecter</span></button>
       <button class="cart-button" id="openCart" aria-label="Ouvrir le panier"><span>Panier</span><b id="cartCount">0</b></button>
     </div>
   </header>
@@ -32,7 +31,7 @@
       <img src="assets/img/hero-img1.webp" alt="Pizza italienne Di Napoli">
       <div class="hero-shade"></div>
       <div class="hero-content">
-        <span class="eyebrow">Pizzeria artisanale • Lamballe-Armor</span>
+        <span class="eyebrow"><i></i>Pizzeria artisanale • Lamballe-Armor</span>
         <h1>La pizza qui met<br><em>tout le monde d’accord.</em></h1>
         <p>Commandez vos incontournables en quelques gestes. Sur place, à emporter ou livrés chez vous.</p>
         <div class="hero-actions"><a class="primary" href="#menu">Voir la carte <span>→</span></a><a class="secondary" href="#restaurant">Nous trouver</a></div>
@@ -41,7 +40,7 @@
     </section>
 
     <section class="order-mode" aria-label="Mode de commande">
-      <div><span class="eyebrow dark">Votre commande</span><h2>Comment souhaitez-vous être servi ?</h2></div>
+      <div><span class="eyebrow dark">Votre commande</span><h2>Comment souhaitez-vous être servi ?</h2><p class="order-hint">Sélectionnez un mode avant de remplir votre panier.</p></div>
       <div class="modes" role="group"><button class="mode active" data-mode="Livraison">⌂ <span><b>Livraison</b><small>À votre porte</small></span></button><button class="mode" data-mode="À emporter">▣ <span><b>À emporter</b><small>Prêt au comptoir</small></span></button><button class="mode" data-mode="Sur place">♨ <span><b>Sur place</b><small>À table</small></span></button></div>
     </section>
 
@@ -57,13 +56,23 @@
     </section>
   </main>
 
-  <footer><a class="brand" href="#top"><span class="brand-mark">DN</span><span>Di Napoli<small>Lamballe</small></span></a><p>9 rue Paul Langevin · 22400 Lamballe-Armor</p><p>Prototype de refonte — commande non transmise.</p></footer>
+  <footer><a class="brand brand-logo" href="#top"><img src="assets/img/logo.svg" alt="Di Napoli Lamballe"></a><p>9 rue Paul Langevin · 22400 Lamballe-Armor</p><p>Prototype de refonte — commande non transmise.</p></footer>
 
   <button class="mobile-cart" id="mobileCart"><span>Voir mon panier</span><b><span id="mobileCount">0 article</span> · <span id="mobileTotal">0,00 €</span></b></button>
   <div class="drawer-backdrop" id="backdrop"></div>
   <aside class="drawer" id="drawer" aria-label="Votre panier"><button class="drawer-close" id="closeCart" aria-label="Fermer">×</button><div id="drawerContent"></div></aside>
   <div class="modal-backdrop" id="modalBackdrop"><div class="product-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><button class="drawer-close" id="closeModal">×</button><div id="modalContent"></div></div></div>
+  <div class="account-backdrop" id="accountBackdrop">
+    <section class="account-panel" role="dialog" aria-modal="true" aria-labelledby="accountTitle">
+      <button class="account-close" id="closeAccount" aria-label="Fermer">×</button>
+      <div class="account-brand"><img src="assets/img/logo.svg" alt="Di Napoli"><span>Votre espace gourmand</span></div>
+      <div id="accountContent"></div>
+      <p class="demo-notice">Espace de démonstration : aucune donnée n’est envoyée au restaurant.</p>
+    </section>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script src="menu-data.js"></script>
   <script src="app.js"></script>
+  <script src="account.js"></script>
 </body>
 </html>
