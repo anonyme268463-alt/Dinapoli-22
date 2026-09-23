@@ -1,33 +1,113 @@
-const categories=['Pizzas tomate','Pizzas crème','Menus','Paninis','Bruschettas','Tex-Mex','Desserts','Boissons'];
-const products=[
- {id:1,cat:'Pizzas tomate',name:'Margherita',desc:'Sauce tomate, fromage.',price:19,badge:'L’incontournable',img:'assets/produit/3284_77.webp'},
- {id:2,cat:'Pizzas tomate',name:'Regina',desc:'Sauce tomate, fromage, jambon, champignons.',price:21,badge:'Très populaire',img:'assets/produit/3284_82.webp'},
- {id:3,cat:'Pizzas tomate',name:'4 Fromages',desc:'Sauce tomate, gorgonzola, chèvre, brie, parmesan.',price:21,img:'assets/produit/3284_86.webp'},
- {id:4,cat:'Pizzas tomate',name:'Orientale',desc:'Sauce tomate, fromage, merguez, poivrons, œuf, oignons.',price:21,badge:'Épicée',img:'assets/produit/3284_88.webp'},
- {id:5,cat:'Pizzas tomate',name:'Végétarienne',desc:'Sauce tomate, fromage, champignons, poivrons, artichauts, olives.',price:21,badge:'Végétarien',img:'assets/produit/3284_90.webp'},
- {id:6,cat:'Pizzas tomate',name:'Cheese Burger',desc:'Sauce tomate, fromage, viande hachée, poivrons, oignons, œuf.',price:21,img:'assets/produit/3284_92.webp'},
- {id:7,cat:'Pizzas crème',name:'Savoyarde',desc:'Crème fraîche, fromage, pommes de terre, lardons, reblochon.',price:22,badge:'Généreuse'},
- {id:8,cat:'Pizzas crème',name:'Chèvre Miel',desc:'Crème fraîche, fromage, chèvre, miel et noix.',price:22,badge:'Sucrée-salée'},
- {id:9,cat:'Menus',name:'Menu Solo',desc:'1 pizza Junior au choix, 1 dessert et 1 boisson 33 cl.',price:18.9},
- {id:10,cat:'Paninis',name:'Panini Poulet',desc:'Poulet, fromage, tomates fraîches et sauce au choix.',price:8.5},
- {id:11,cat:'Bruschettas',name:'Bruschetta Italienne',desc:'Pain grillé, tomate, mozzarella, jambon cru et basilic.',price:11.9},
- {id:12,cat:'Tex-Mex',name:'Tenders',desc:'Poulet croustillant, servi par 6 avec sauce au choix.',price:8.9},
- {id:13,cat:'Desserts',name:'Tiramisu',desc:'L’incontournable dessert italien au café.',price:4.5},
- {id:14,cat:'Boissons',name:'Coca-Cola',desc:'Canette fraîche 33 cl.',price:2.5}
-];
-let current=categories[0],query='',cart=[];
-const euro=n=>n.toLocaleString('fr-FR',{style:'currency',currency:'EUR'});
-const categoriesEl=document.querySelector('#categories'),grid=document.querySelector('#productGrid');
-function renderCategories(){categoriesEl.innerHTML=categories.map(c=>`<button class="category ${c===current?'active':''}" data-cat="${c}">${c}</button>`).join('');categoriesEl.querySelectorAll('button').forEach(b=>b.onclick=()=>{current=b.dataset.cat;renderCategories();renderProducts()})}
-function renderProducts(){const list=products.filter(p=>p.cat===current&&(`${p.name} ${p.desc}`.toLowerCase().includes(query)));grid.innerHTML=list.map(p=>`<article class="product">${p.img?`<div class="product-image"><img src="${p.img}" alt="${p.name}" loading="lazy"></div>`:''}<div class="product-copy">${p.badge?`<span class="badge">${p.badge}</span>`:''}<h3>${p.name}</h3><p>${p.desc}</p><div class="product-bottom"><div class="product-price"><small>À partir de</small><b>${euro(p.price)}</b></div><button class="add-button" data-id="${p.id}" aria-label="Ajouter ${p.name}">+</button></div></div></article>`).join('');document.querySelector('#empty').style.display=list.length?'none':'block';grid.querySelectorAll('.add-button').forEach(b=>b.onclick=()=>openProduct(+b.dataset.id))}
-function openProduct(id){const p=products.find(x=>x.id===id),hasSizes=p.cat.startsWith('Pizzas');let selected='Senior';document.querySelector('#modalContent').innerHTML=`<span class="eyebrow dark">${p.cat}</span><h2 id="modalTitle">${p.name}</h2><p>${p.desc}</p>${hasSizes?`<h4>Choisissez votre taille</h4><div class="sizes"><button class="size" data-size="Junior" data-delta="-5">Junior</button><button class="size active" data-size="Senior" data-delta="0">Senior</button><button class="size" data-size="Méga" data-delta="7">Méga</button></div>`:''}<div class="modal-price"><b id="choicePrice">${euro(p.price)}</b><button class="modal-add">Ajouter au panier</button></div>`;let delta=0;document.querySelectorAll('.size').forEach(b=>b.onclick=()=>{document.querySelectorAll('.size').forEach(x=>x.classList.remove('active'));b.classList.add('active');selected=b.dataset.size;delta=+b.dataset.delta;document.querySelector('#choicePrice').textContent=euro(p.price+delta)});document.querySelector('.modal-add').onclick=()=>{const key=`${id}-${selected}`;const found=cart.find(x=>x.key===key);if(found)found.qty++;else cart.push({key,id,name:p.name,size:hasSizes?selected:'',price:p.price+delta,qty:1});closeModal();renderCart()};document.querySelector('#modalBackdrop').classList.add('open')}
-function closeModal(){document.querySelector('#modalBackdrop').classList.remove('open')}
-function renderCart(){const qty=cart.reduce((s,x)=>s+x.qty,0),total=cart.reduce((s,x)=>s+x.qty*x.price,0);document.querySelector('#cartCount').textContent=qty;document.querySelector('#mobileCount').textContent=`${qty} article${qty>1?'s':''}`;document.querySelector('#mobileTotal').textContent=euro(total);const html=`<div class="cart-title"><h3>Votre panier</h3><small>${document.querySelector('.mode.active b').textContent}</small></div>${!cart.length?`<div class="cart-empty"><span>◌</span><b>Votre panier est vide</b><small>Une pizza pourrait arranger ça.</small></div>`:cart.map(x=>`<div class="cart-item"><div><b>${x.name}</b><small>${x.size||'1 portion'} · ${euro(x.price)}</small></div><div class="qty"><button data-key="${x.key}" data-d="-1">−</button><b>${x.qty}</b><button data-key="${x.key}" data-d="1">+</button></div></div>`).join('')+`<div class="cart-total"><span>Total</span><span>${euro(total)}</span></div><button class="checkout">Continuer la commande</button>`}`;document.querySelector('#desktopCart').innerHTML=html;document.querySelector('#drawerContent').innerHTML=html;document.querySelectorAll('.qty button').forEach(b=>b.onclick=()=>changeQty(b.dataset.key,+b.dataset.d))}
-function changeQty(key,d){const item=cart.find(x=>x.key===key);item.qty+=d;if(item.qty<=0)cart=cart.filter(x=>x.key!==key);renderCart()}
-function openCart(){document.querySelector('#drawer').classList.add('open');document.querySelector('#backdrop').classList.add('open')}
-function closeCart(){document.querySelector('#drawer').classList.remove('open');document.querySelector('#backdrop').classList.remove('open')}
-document.querySelectorAll('.mode').forEach(b=>b.onclick=()=>{document.querySelectorAll('.mode').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderCart()});
-document.querySelector('#search').oninput=e=>{query=e.target.value.toLowerCase();if(query){const hit=products.find(p=>(`${p.name} ${p.desc}`).toLowerCase().includes(query));if(hit)current=hit.cat}renderCategories();renderProducts()};
-document.querySelector('#catPrev').onclick=()=>categoriesEl.scrollBy({left:-280,behavior:'smooth'});document.querySelector('#catNext').onclick=()=>categoriesEl.scrollBy({left:280,behavior:'smooth'});
-document.querySelector('#openCart').onclick=openCart;document.querySelector('#mobileCart').onclick=openCart;document.querySelector('#closeCart').onclick=closeCart;document.querySelector('#backdrop').onclick=closeCart;document.querySelector('#closeModal').onclick=closeModal;document.querySelector('#modalBackdrop').onclick=e=>{if(e.target.id==='modalBackdrop')closeModal()};
-renderCategories();renderProducts();renderCart();
+const { categories, products } = window.DINAPOLI_MENU;
+let current = categories[0];
+let query = '';
+let cart = [];
+
+const euro = (value) => Number(value).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+const categoriesEl = document.querySelector('#categories');
+const grid = document.querySelector('#productGrid');
+
+function renderCategories() {
+  categoriesEl.innerHTML = categories.map((category) => `<button class="category ${category === current ? 'active' : ''}" data-cat="${category}">${category}</button>`).join('');
+  categoriesEl.querySelectorAll('button').forEach((button) => {
+    button.onclick = () => {
+      current = button.dataset.cat;
+      query = '';
+      document.querySelector('#search').value = '';
+      renderCategories();
+      renderProducts();
+    };
+  });
+}
+
+function renderProducts() {
+  const normalizedQuery = query.trim().toLowerCase();
+  const list = products.filter((product) => {
+    const matchesCategory = normalizedQuery || product.category === current;
+    const matchesQuery = `${product.name} ${product.description} ${product.category}`.toLowerCase().includes(normalizedQuery);
+    return matchesCategory && matchesQuery;
+  });
+  grid.innerHTML = list.map((product) => `
+    <article class="product">
+      ${product.image ? `<div class="product-image"><img src="${product.image}" alt="${product.name}" loading="lazy"></div>` : ''}
+      <div class="product-copy">
+        <span class="product-category">${product.category}</span>
+        <h3>${product.name}</h3>
+        <p>${product.description || 'Découvrez ce produit sur la carte Di Napoli.'}</p>
+        <div class="product-bottom">
+          <div class="product-price"><small>${product.options.length > 1 ? 'À partir de' : 'Prix'}</small><b>${euro(product.price)}</b></div>
+          <button class="add-button" data-id="${product.id}" aria-label="Ajouter ${product.name}">+</button>
+        </div>
+      </div>
+    </article>`).join('');
+  document.querySelector('#empty').style.display = list.length ? 'none' : 'block';
+  grid.querySelectorAll('.add-button').forEach((button) => { button.onclick = () => openProduct(Number(button.dataset.id)); });
+}
+
+function openProduct(id) {
+  const product = products.find((item) => item.id === id);
+  const variants = product.options.length ? product.options : [{ name: '', price: product.price }];
+  let selected = variants[0];
+  document.querySelector('#modalContent').innerHTML = `
+    ${product.image ? `<img class="modal-product-image" src="${product.image}" alt="${product.name}">` : ''}
+    <span class="eyebrow dark">${product.category}</span><h2 id="modalTitle">${product.name}</h2>
+    <p>${product.description || 'Découvrez ce produit sur la carte Di Napoli.'}</p>
+    ${variants.length > 1 ? `<h4>Choisissez votre option</h4><div class="sizes">${variants.map((variant, index) => `<button class="size ${index === 0 ? 'active' : ''}" data-index="${index}"><span>${variant.name}</span><b>${euro(variant.price)}</b></button>`).join('')}</div>` : ''}
+    <div class="modal-price"><b id="choicePrice">${euro(selected.price)}</b><button class="modal-add">Ajouter au panier</button></div>`;
+  document.querySelectorAll('.size').forEach((button) => {
+    button.onclick = () => {
+      document.querySelectorAll('.size').forEach((item) => item.classList.remove('active'));
+      button.classList.add('active');
+      selected = variants[Number(button.dataset.index)];
+      document.querySelector('#choicePrice').textContent = euro(selected.price);
+    };
+  });
+  document.querySelector('.modal-add').onclick = () => {
+    const variantName = selected.name || 'Standard';
+    const key = `${id}-${variantName}`;
+    const found = cart.find((item) => item.key === key);
+    if (found) found.qty += 1;
+    else cart.push({ key, id, name: product.name, size: selected.name, price: selected.price, qty: 1 });
+    closeModal();
+    renderCart();
+  };
+  document.querySelector('#modalBackdrop').classList.add('open');
+}
+
+function closeModal() { document.querySelector('#modalBackdrop').classList.remove('open'); }
+
+function renderCart() {
+  const qty = cart.reduce((sum, item) => sum + item.qty, 0);
+  const total = cart.reduce((sum, item) => sum + item.qty * item.price, 0);
+  document.querySelector('#cartCount').textContent = qty;
+  document.querySelector('#mobileCount').textContent = `${qty} article${qty > 1 ? 's' : ''}`;
+  document.querySelector('#mobileTotal').textContent = euro(total);
+  const html = `<div class="cart-title"><h3>Votre panier</h3><small>${document.querySelector('.mode.active b').textContent}</small></div>${!cart.length ? `<div class="cart-empty"><span>◌</span><b>Votre panier est vide</b><small>Une pizza pourrait arranger ça.</small></div>` : `${cart.map((item) => `<div class="cart-item"><div><b>${item.name}</b><small>${item.size || '1 portion'} · ${euro(item.price)}</small></div><div class="qty"><button data-key="${item.key}" data-d="-1">−</button><b>${item.qty}</b><button data-key="${item.key}" data-d="1">+</button></div></div>`).join('')}<div class="cart-total"><span>Total</span><span>${euro(total)}</span></div><button class="checkout">Continuer la commande</button>`}`;
+  document.querySelector('#desktopCart').innerHTML = html;
+  document.querySelector('#drawerContent').innerHTML = html;
+  document.querySelectorAll('.qty button').forEach((button) => { button.onclick = () => changeQty(button.dataset.key, Number(button.dataset.d)); });
+}
+
+function changeQty(key, difference) {
+  const item = cart.find((entry) => entry.key === key);
+  item.qty += difference;
+  if (item.qty <= 0) cart = cart.filter((entry) => entry.key !== key);
+  renderCart();
+}
+function openCart() { document.querySelector('#drawer').classList.add('open'); document.querySelector('#backdrop').classList.add('open'); }
+function closeCart() { document.querySelector('#drawer').classList.remove('open'); document.querySelector('#backdrop').classList.remove('open'); }
+
+document.querySelectorAll('.mode').forEach((button) => { button.onclick = () => { document.querySelectorAll('.mode').forEach((item) => item.classList.remove('active')); button.classList.add('active'); renderCart(); }; });
+document.querySelector('#search').oninput = (event) => { query = event.target.value; renderProducts(); };
+document.querySelector('#catPrev').onclick = () => categoriesEl.scrollBy({ left: -280, behavior: 'smooth' });
+document.querySelector('#catNext').onclick = () => categoriesEl.scrollBy({ left: 280, behavior: 'smooth' });
+document.querySelector('#openCart').onclick = openCart;
+document.querySelector('#mobileCart').onclick = openCart;
+document.querySelector('#closeCart').onclick = closeCart;
+document.querySelector('#backdrop').onclick = closeCart;
+document.querySelector('#closeModal').onclick = closeModal;
+document.querySelector('#modalBackdrop').onclick = (event) => { if (event.target.id === 'modalBackdrop') closeModal(); };
+
+renderCategories();
+renderProducts();
+renderCart();

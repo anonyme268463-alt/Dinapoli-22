@@ -27,3 +27,29 @@
   flex: 1;
   flex-direction: column;
 }
+
+.product-category {
+  color: #d83426;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+
+.modal-product-image {
+  display: block;
+  width: 100%;
+  height: 190px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  background: #f2eee7;
+  object-fit: contain;
+}
+
+.sizes .size {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sizes .size b { font-size: 12px; }
